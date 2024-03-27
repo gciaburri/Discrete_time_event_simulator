@@ -1,5 +1,17 @@
 import random
 import numpy as np
+import argparse
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Script that adds 3 numbers from CMD"
+    )
+    parser.add_argument("--num1", required=True, type=int)
+    parser.add_argument("--num2", required=True, type=int)
+    args = parser.parse_args()
+
+    lamda_ = args.num1
+    sTime = args.num2
 
 def randomIntA():
    numberA = [0] * 100
@@ -44,4 +56,5 @@ def workloadGenerator(average_arrival_rate, t):
     processes.append(process)
   return processes
 
-print(workloadGenerator(2, 0.04))
+
+print(workloadGenerator(lamda_, sTime))

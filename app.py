@@ -1,14 +1,26 @@
 import heapq
 import numpy as np
 import random
+import argparse
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Discrete Time Event Simulator"
+    )
+    parser.add_argument("--num1", required=True, type=int)
+    parser.add_argument("--num2", required=True, type=int)
+    args = parser.parse_args()
+
+    num1 = args.num1
+    num2 = args.num2
 
 class Simulator:
-    def __init__(self):
+    def __init__(self, num1, num2):
         self.clock = 0
         self.cpu_busy = 0
         self.completed_processes = 0
-        self.lamda_ = 30    # Average arrival rate (processes per second)
-        self.sTime = 25    # Average service time (processes per second)
+        self.lamda_ = num1    # Average arrival rate (processes per second)
+        self.sTime = num2   # Average service time (processes per second)
     def generate_interarrival_time(self):
         randNumY = random.uniform(0.0, 1.0)
         return (-1 / self.lamda_) * np.log(1 - randNumY)
@@ -69,10 +81,10 @@ class Event:
 
 ready_queue = ReadyQueue()
 event_queue = EventQueue()
-s = Simulator()
+s = Simulator(num1, num2)
 
-event_queue.schedule_event(Event(1, 'ARR', 1))
 
+event_queue.schedule_event(Event(0, 'ARR', 0))
 while s.completed_processes < 1000:
     print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
