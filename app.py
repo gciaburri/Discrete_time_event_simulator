@@ -20,6 +20,7 @@ class Simulator:
         self.cpu_busy = 0
         self.completed_processes = 0
         self.cpu_busy_time = 0
+        self.total_turnaround_time = 0
         self.lamda_ = num1    # Average arrival rate (processes per second)
         self.sTime = num2   # Average service time (processes per second)
     def generate_interarrival_time(self):
@@ -41,6 +42,7 @@ class Simulator:
             print( "Process", event.process_id, "started at", start_time)
 
             departure_time = self.clock + service_time
+            
 
             event_queue.schedule_event(Event(departure_time, 'DEP', event.process_id))
             print("Departure scheduled")
@@ -84,6 +86,7 @@ class Event:
             self.time = time
             self.type = type
             self.process_id = process_id
+            self.arrival_time = 0
         def __lt__(self, other):
             return self.time < other.time
 
@@ -91,6 +94,7 @@ ready_queue = ReadyQueue()
 event_queue = EventQueue()
 s = Simulator(num1, num2)
 
+arrival_times = {}
 
 event_queue.schedule_event(Event(0, 'ARR', 1))
 while s.completed_processes < 10:
@@ -99,8 +103,17 @@ while s.completed_processes < 10:
     s.clock = current_event.time
     if current_event.type == 'ARR':
         s.handle_arrival(current_event)
+        arrival_times[current_event.process_id] = s.clock
     elif current_event.type == 'DEP':
+        if current_event.process_id in arrival_times:
+            original_arrival_time = arrival_times[current_event.process_id]
+            completion_time = s.clock
+            turnaround_time = completion_time - original_arrival_time
+            s.total_turnaround_time += turnaround_time
+        else:
+            print("Error: Arrival time not found for process", current_event.process_id)
         s.handle_departure(current_event)
         s.completed_processes += 1
     else:
         print('Invalid event type')
+print("Average turnaround time:", s.total_turnaround_time / s.completed_processes)
