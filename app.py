@@ -131,6 +131,5 @@ avg_processes_in_rq = processes_in_rq / event_changes
 
 print("CPU Utilization: ", s.total_cpu_busy_time / final_time * 100, "%")
 print("Average Throughput:", s.completed_processes / final_time, "processes per second")
-print("Average Turnaround time:", s.total_turnaround_time / s.completed_processes)
+print("Average Turnaround time:", s.total_turnaround_time / s.completed_processes, " seconds")
 print("Average number of processes in ready queue:", avg_processes_in_rq)
-
