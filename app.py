@@ -95,9 +95,12 @@ event_queue = EventQueue()
 s = Simulator(num1, num2)
 
 arrival_times = {}
+rq_length = ()
+event_changes = 0
+processes_in_rq = 0
 
 event_queue.schedule_event(Event(0, 'ARR', 1))
-while s.completed_processes < 10000:
+while s.completed_processes < 100:
     print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
@@ -116,6 +119,13 @@ while s.completed_processes < 10000:
         s.completed_processes += 1
     else:
         print('Invalid event type')
+    processes_in_rq += len(ready_queue.ready_queue)
+    event_changes += 1
+
 final_time = s.clock
+avg_processes_in_rq = processes_in_rq / event_changes
+
 print("Average Throughput:", s.completed_processes / final_time, "processes per second")
 print("Average Turnaround time:", s.total_turnaround_time / s.completed_processes)
+print("Average number of processes in ready queue:", avg_processes_in_rq)
+
