@@ -103,7 +103,7 @@ processes_in_rq = 0
 
 event_queue.schedule_event(Event(0, 'ARR', 1))
 while s.completed_processes < 1000:
-    print("CPU busy:", s.cpu_busy)
+#    print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
     if current_event.type == 'ARR':
