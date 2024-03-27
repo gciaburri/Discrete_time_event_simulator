@@ -1,7 +1,7 @@
 import heapq
-import numpy as np
 import random
 import argparse
+import math
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -23,11 +23,11 @@ class Simulator:
         self.sTime = num2   # Average service time (processes per second)
     def generate_interarrival_time(self):
         randNumY = random.uniform(0.0, 1.0)
-        return (-1 / self.lamda_) * np.log(1 - randNumY)
+        return (-1 / self.lamda_) * math.log(1 - randNumY)
     
     def generate_service_time(self):
         randNumZ = random.uniform(0.0, 1.0)
-        return -1 / self.sTime * np.log(1 - randNumZ)
+        return -1 / self.sTime * math.log(1 - randNumZ)
     
     def handle_arrival(self, event):
         if (self.cpu_busy == 0):
@@ -89,12 +89,11 @@ while s.completed_processes < 1000:
     print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
-    match (current_event.type):
-        case 'ARR':
-            s.handle_arrival(current_event)
-        case 'DEP':
-            s.handle_departure(current_event)
-            s.completed_processes += 1
-            print('Process', current_event.process_id, 'completed at', s.clock)
-        case _:
-            print('Invalid event type')
+    if current_event.type == 'ARR':
+        s.handle_arrival(current_event)
+    elif current_event.type == 'DEP':
+        s.handle_departure(current_event)
+        s.completed_processes += 1
+        print('Process', current_event.process_id, 'completed at', s.clock)
+    else:
+        print('Invalid event type')
