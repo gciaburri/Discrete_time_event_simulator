@@ -7,32 +7,34 @@ class Simulator:
         self.clock = 0
         self.cpu_busy = 0
         self.completed_processes = 0
-        self.lamda_ = 2
-        self.sTime = 0.04
-        
+        self.lamda_ = 30    # Average arrival rate (processes per second)
+        self.sTime = 25    # Average service time (processes per second)
+    def generate_interarrival_time(self):
+        randNumY = random.uniform(0.0, 1.0)
+        return (-1 / self.lamda_) * np.log(1 - randNumY)
+    
+    def generate_service_time(self):
+        randNumZ = random.uniform(0.0, 1.0)
+        return -1 / self.sTime * np.log(1 - randNumZ)
+    
     def handle_arrival(self, event):
         if (self.cpu_busy == 0):
             self.cpu_busy = 1
 
-            randNumX = random.uniform(0.0, 1.0)
-            service_time = 1 #-1 / 0.04 * np.log(1 - randNumX)
-            departure_time = self.clock + service_time
+            departure_time = self.clock + self.generate_service_time()
 
             event_queue.schedule_event(Event(departure_time, 'DEP', event.process_id))
             print("Departure scheduled")
         else:
             ready_queue.add_event(event)
-        event_queue.schedule_event(Event(self.clock + 1, 'ARR', event.process_id + 1))
+        event_queue.schedule_event(Event(self.clock + self.generate_interarrival_time(), 'ARR', event.process_id + 1))
         print("Arrival scheduled at", self.clock)
 
 
     def handle_departure(self, event):
         if len(ready_queue.ready_queue) > 0:
             next_event = ready_queue.get_event()
-
-            randNumZ = random.uniform(0.0, 1.0)
-            service_time = 1 #-1 / 2 * np.log(1 - randNumZ)
-            departure_time = self.clock + service_time
+            departure_time = self.clock + self.generate_service_time()
 
             event_queue.schedule_event(Event(departure_time, 'DEP', next_event.process_id))
         else:
