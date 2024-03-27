@@ -97,7 +97,7 @@ s = Simulator(num1, num2)
 arrival_times = {}
 
 event_queue.schedule_event(Event(0, 'ARR', 1))
-while s.completed_processes < 10:
+while s.completed_processes < 10000:
     print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
@@ -116,4 +116,6 @@ while s.completed_processes < 10:
         s.completed_processes += 1
     else:
         print('Invalid event type')
-print("Average turnaround time:", s.total_turnaround_time / s.completed_processes)
+final_time = s.clock
+print("Average Throughput:", s.completed_processes / final_time, "processes per second")
+print("Average Turnaround time:", s.total_turnaround_time / s.completed_processes)
