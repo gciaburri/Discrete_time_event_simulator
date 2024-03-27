@@ -19,6 +19,7 @@ class Simulator:
         self.clock = 0
         self.cpu_busy = 0
         self.completed_processes = 0
+        self.cpu_busy_time = 0
         self.lamda_ = num1    # Average arrival rate (processes per second)
         self.sTime = num2   # Average service time (processes per second)
     def generate_interarrival_time(self):
@@ -30,27 +31,33 @@ class Simulator:
         return -1 / self.sTime * math.log(1 - randNumZ)
     
     def handle_arrival(self, event):
+        arrival_time = self.clock
+        print( "Process", event.process_id, "arrived at", arrival_time)
         if (self.cpu_busy == 0):
             self.cpu_busy = 1
+            service_time = self.generate_service_time()
+            self.cpu_busy_time += service_time
+            start_time = self.clock
+            print( "Process", event.process_id, "started at", start_time)
 
-            departure_time = self.clock + self.generate_service_time()
+            departure_time = self.clock + service_time
 
             event_queue.schedule_event(Event(departure_time, 'DEP', event.process_id))
             print("Departure scheduled")
         else:
             ready_queue.add_event(event)
         event_queue.schedule_event(Event(self.clock + self.generate_interarrival_time(), 'ARR', event.process_id + 1))
-        print("Arrival scheduled at", self.clock)
 
 
     def handle_departure(self, event):
         if len(ready_queue.ready_queue) > 0:
             next_event = ready_queue.get_event()
             departure_time = self.clock + self.generate_service_time()
-
             event_queue.schedule_event(Event(departure_time, 'DEP', next_event.process_id))
         else:
             self.cpu_busy = 0
+        print( "Process", event.process_id, "completed at", event.time)
+
 
 class ReadyQueue:
         def __init__(self):
@@ -59,6 +66,7 @@ class ReadyQueue:
             self.ready_queue.append(event)
         def get_event(self):
             return self.ready_queue.pop(0)
+
 
 class EventQueue:
         def __init__(self):
@@ -84,8 +92,8 @@ event_queue = EventQueue()
 s = Simulator(num1, num2)
 
 
-event_queue.schedule_event(Event(0, 'ARR', 0))
-while s.completed_processes < 1000:
+event_queue.schedule_event(Event(0, 'ARR', 1))
+while s.completed_processes < 10:
     print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
@@ -94,6 +102,5 @@ while s.completed_processes < 1000:
     elif current_event.type == 'DEP':
         s.handle_departure(current_event)
         s.completed_processes += 1
-        print('Process', current_event.process_id, 'completed at', s.clock)
     else:
         print('Invalid event type')
