@@ -19,10 +19,11 @@ class Simulator:
         self.clock = 0
         self.cpu_busy = 0
         self.completed_processes = 0
-        self.cpu_busy_time = 0
         self.total_turnaround_time = 0
         self.lamda_ = num1    # Average arrival rate (processes per second)
         self.sTime = num2   # Average service time (processes per second)
+        self.cpu_busy_start_time = 0  # Time when CPU last became busy
+        self.total_cpu_busy_time = 0  # Cumulative CPU busy time
     def generate_interarrival_time(self):
         randNumY = random.uniform(0.0, 1.0)
         return (-1 / self.lamda_) * math.log(1 - randNumY)
@@ -33,19 +34,19 @@ class Simulator:
     
     def handle_arrival(self, event):
         arrival_time = self.clock
-        print( "Process", event.process_id, "arrived at", arrival_time)
+#        print( "Process", event.process_id, "arrived at", arrival_time)
         if (self.cpu_busy == 0):
             self.cpu_busy = 1
+            self.cpu_busy_start_time = self.clock
             service_time = self.generate_service_time()
-            self.cpu_busy_time += service_time
             start_time = self.clock
-            print( "Process", event.process_id, "started at", start_time)
+#            print( "Process", event.process_id, "started at", start_time)
 
             departure_time = self.clock + service_time
             
 
             event_queue.schedule_event(Event(departure_time, 'DEP', event.process_id))
-            print("Departure scheduled")
+#            print("Departure scheduled")
         else:
             ready_queue.add_event(event)
         event_queue.schedule_event(Event(self.clock + self.generate_interarrival_time(), 'ARR', event.process_id + 1))
@@ -58,7 +59,9 @@ class Simulator:
             event_queue.schedule_event(Event(departure_time, 'DEP', next_event.process_id))
         else:
             self.cpu_busy = 0
-        print( "Process", event.process_id, "completed at", event.time)
+            busy_period = self.clock - self.cpu_busy_start_time  
+            self.total_cpu_busy_time += busy_period 
+#        print( "Process", event.process_id, "completed at", event.time)
 
 
 class ReadyQueue:
@@ -95,12 +98,11 @@ event_queue = EventQueue()
 s = Simulator(num1, num2)
 
 arrival_times = {}
-rq_length = ()
 event_changes = 0
 processes_in_rq = 0
 
 event_queue.schedule_event(Event(0, 'ARR', 1))
-while s.completed_processes < 100:
+while s.completed_processes < 1000:
     print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
@@ -121,10 +123,13 @@ while s.completed_processes < 100:
         print('Invalid event type')
     processes_in_rq += len(ready_queue.ready_queue)
     event_changes += 1
-
+if s.cpu_busy == 1:
+    busy_period = s.clock - s.cpu_busy_start_time
+    s.total_cpu_busy_time += busy_period
 final_time = s.clock
 avg_processes_in_rq = processes_in_rq / event_changes
 
+print("CPU Utilization: ", s.total_cpu_busy_time / final_time * 100, "%")
 print("Average Throughput:", s.completed_processes / final_time, "processes per second")
 print("Average Turnaround time:", s.total_turnaround_time / s.completed_processes)
 print("Average number of processes in ready queue:", avg_processes_in_rq)
