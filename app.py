@@ -8,20 +8,18 @@ if __name__ == "__main__":
         description="Discrete Time Event Simulator"
     )
     parser.add_argument("--num1", required=True, type=int)
-    parser.add_argument("--num2", required=True, type=int)
     args = parser.parse_args()
 
     num1 = args.num1
-    num2 = args.num2
 
 class Simulator:
-    def __init__(self, num1, num2):
+    def __init__(self, num1):
         self.clock = 0
         self.cpu_busy = 0
         self.completed_processes = 0
         self.total_turnaround_time = 0
         self.lamda_ = num1    # Average arrival rate (processes per second)
-        self.sTime = num2   # Average service time (processes per second)
+        self.sTime = 25    # Average service rate (processes per second)
         self.cpu_busy_start_time = 0  # Time when CPU last became busy
         self.total_cpu_busy_time = 0  # Cumulative CPU busy time
     def generate_interarrival_time(self):
@@ -95,14 +93,14 @@ class Event:
 
 ready_queue = ReadyQueue()
 event_queue = EventQueue()
-s = Simulator(num1, num2)
+s = Simulator(num1)
 
 arrival_times = {}
 event_changes = 0
 processes_in_rq = 0
 
 event_queue.schedule_event(Event(0, 'ARR', 1))
-while s.completed_processes < 1000:
+while s.completed_processes < 10000:
 #    print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
