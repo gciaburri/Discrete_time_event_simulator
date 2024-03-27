@@ -23,7 +23,7 @@ class Simulator:
         else:
             ready_queue.add_event(event)
         event_queue.schedule_event(Event(self.clock + 1, 'ARR', event.process_id + 1))
-        print("Arrival scheduled")
+        print("Arrival scheduled at", self.clock)
 
 
     def handle_departure(self, event):
@@ -69,8 +69,9 @@ ready_queue = ReadyQueue()
 event_queue = EventQueue()
 s = Simulator()
 
+event_queue.schedule_event(Event(1, 'ARR', 1))
 
-while s.completed_processes < 3:
+while s.completed_processes < 1000:
     print("CPU busy:", s.cpu_busy)
     current_event = event_queue.get_event() 
     s.clock = current_event.time
